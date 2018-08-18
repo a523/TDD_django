@@ -41,7 +41,7 @@ class NewVisitorTest(LiveServerTestCase):
         # 待办事项表格中显示了“1: Buy peacock feathers”
         inputbox.send_keys(Keys.ENTER)
         edith_list_url = self.browser.current_url
-        self.assertRegex(edith_list_url, '/list/.+')
+        self.assertRegex(edith_list_url, '/lists/.+')
         self.check_for_row_in_list_table("1: Buy peacock feathers")
 
         # 页面中又显示了一个文本框，可以输入其他的待办事项
@@ -84,4 +84,3 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertIn('Buy milk', page_text)
 
         # 两人都很满意，去睡觉了
-        self.fail('Finish the test!')
