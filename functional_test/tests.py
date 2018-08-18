@@ -1,7 +1,6 @@
 from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import time
 
 
 class NewVisitorTest(LiveServerTestCase):
@@ -44,7 +43,6 @@ class NewVisitorTest(LiveServerTestCase):
         edith_list_url = self.browser.current_url
         self.assertRegex(edith_list_url, '/list/.+')
         self.check_for_row_in_list_table("1: Buy peacock feathers")
-        time.sleep(10)
 
         # 页面中又显示了一个文本框，可以输入其他的待办事项
         # 她输入了“Use peacock feathers to make a fly(”使用孔雀羽毛做假蝇)
