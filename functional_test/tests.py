@@ -1,9 +1,9 @@
+from django.test import LiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import unittest
 
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Chrome()
         self.browser.implicitly_wait(2)
@@ -19,7 +19,7 @@ class NewVisitorTest(unittest.TestCase):
     def test_can_start_a_list_and_retrieve_it_later(self):
         # 阿洁听说有一个很酷的在线待办事项应用
         # 她去看了这个应用的首页
-        self.browser.get("http://127.0.0.1:8000")
+        self.browser.get(self.live_server_url)
 
         # 她注意到网页的标题和头部包含"To-Do"这个词
         self.assertIn('To-Do', self.browser.title)
@@ -40,8 +40,10 @@ class NewVisitorTest(unittest.TestCase):
         # 她按回车键后，页面更新了
         # 待办事项表格中显示了“1: Buy peacock feathers”
         inputbox.send_keys(Keys.ENTER)
-
+        edith_list_url = self.browser.current_url
+        self.assertRegex(edith_list_url, '/list/.+')
         self.check_for_row_in_list_table("1: Buy peacock feathers")
+
         # 页面中又显示了一个文本框，可以输入其他的待办事项
         # 她输入了“Use peacock feathers to make a fly(”使用孔雀羽毛做假蝇)
         # 伊迪丝做事很有条理
@@ -53,14 +55,33 @@ class NewVisitorTest(unittest.TestCase):
         self.check_for_row_in_list_table("1: Buy peacock feathers")
         self.check_for_row_in_list_table("2: Use peacock feathers to make a fly")
 
-        # 伊迪丝想知道这个网站是否会记住她的清单
+        # 现在一个叫做xin的新用户访问了网站
+        ## 我们使用一个新的浏览器会话
+        ## 确保阿洁的信息不会从cookie中泄露出来
+        self.browser.quit()
+        self.browser = webdriver.Chrome()
 
-        # 她看到网站为她生成了一个唯一的URL
-        # 而且页面中有一些文字解说这个功能
+        # xin访问首页
+        # 页面中看不到阿洁的清单
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy peacock feather', page_text)
+        self.assertNotIn('Use peacock feathers to make a fly', page_text)
+
+        # xin输入一个新建的待办事项，新建一个清单
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Buy milk')
+        inputbox.send_keys(Keys.ENTER)
+
+        # xin获得了一个他唯一的URL
+        xin_list_url = self.browser.current_url
+        self.assertRegex(xin_list_url, '/lists/.+')
+        self.assertNotEqual(xin_list_url, edith_list_url)
+
+        # 这个页面还是没有阿洁的清单
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy peacock feathers', page_text)
+        self.assertIn('Buy milk', page_text)
+
+        # 两人都很满意，去睡觉了
         self.fail('Finish the test!')
-        # 她访问那个URL，发现她的待办事项列表还在
-        # 她很满意，去睡觉了
-
-
-if __name__ == '__main__':
-    unittest.main()
