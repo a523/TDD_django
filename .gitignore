@@ -1,4 +1,4 @@
 db.sqlite3
 __pycache__
 *.pyc
-将删除 .idea/
+.idea/
